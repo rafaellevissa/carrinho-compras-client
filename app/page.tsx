@@ -2,45 +2,18 @@
 
 import Card from "@/components/Card";
 import InfiniteList from "../components/InfiniteList";
+import { RootState, useAppSelector } from "@/store/store";
 
 export default function HomePage() {
-  const products = [
-    {
-      name: "1 allu",
-      price: "$20.00 USD",
-      image: "https://i.zst.com.br/thumbs/12/31/18/-745569221.jpg",
-    },
-    {
-      name: "2 allu",
-      price: "$12.00 USD",
-      image: "https://i.zst.com.br/thumbs/12/31/18/-745569221.jpg",
-    },
-    {
-      name: "3 allu",
-      price: "$12.00 USD",
-      image: "https://i.zst.com.br/thumbs/12/31/18/-745569221.jpg",
-    },
-    {
-      name: "4 allu",
-      price: "$12.00 USD",
-      image: "https://i.zst.com.br/thumbs/12/31/18/-745569221.jpg",
-    },
-    {
-      name: "5 allu",
-      price: "$12.00 USD",
-      image: "https://i.zst.com.br/thumbs/12/31/18/-745569221.jpg",
-    },
-    {
-      name: "6 allu",
-      price: "$12.00 USD",
-      image: "https://i.zst.com.br/thumbs/12/31/18/-745569221.jpg",
-    },
-  ];
+  const { isShoppingCartOpen, products, isEmpty } = useAppSelector(
+    (state: RootState) => state.product
+  );
 
   function* productGenerator(index: number, batchSize: number) {
-    while (index < products.length) {
-      yield products.slice(index, index + batchSize);
-    }
+    // while (index < products.length) {
+    //   yield products.slice(index, index + batchSize);
+    // }
+    yield products;
   }
 
   return (

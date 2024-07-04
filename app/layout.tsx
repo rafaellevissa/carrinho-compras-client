@@ -2,6 +2,7 @@
 
 import { ShoppingCartProvider } from "@/contexts/shopping-cart";
 import MainLayout from "@/layouts/main";
+import ReduxProvider from "@/store/redux-provider";
 
 type Props = {
   children: React.ReactNode;
@@ -9,8 +10,10 @@ type Props = {
 
 export default function Layout({ children }: Props) {
   return (
-    <ShoppingCartProvider>
-      <MainLayout>{children}</MainLayout>
-    </ShoppingCartProvider>
+    <ReduxProvider>
+      <ShoppingCartProvider>
+        <MainLayout>{children}</MainLayout>
+      </ShoppingCartProvider>
+    </ReduxProvider>
   );
 }
