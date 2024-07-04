@@ -2,6 +2,7 @@
 
 import Carousel from "@/components/Carrousel";
 import { fetchProductById } from "@/store/productSlice";
+import { attach } from "@/store/shoppingCartSlice";
 import { RootState, useAppDispatch, useAppSelector } from "@/store/store";
 import { useEffect } from "react";
 
@@ -34,7 +35,10 @@ export default function ProductPage({ params: { id } }: Props) {
               {product?.description}
             </p>
             <div className="flex justify-center p-5 border-t border-neutral-600">
-              <button className="bg-blue-500 text-white py-2 px-4 rounded-full flex items-center justify-center hover:bg-blue-700 w-full">
+              <button
+                onClick={() => product && dispatch(attach(product))}
+                className="bg-blue-500 text-white py-2 px-4 rounded-full flex items-center justify-center hover:bg-blue-700 w-full"
+              >
                 <span className="text-lg mr-2">+</span> Add to Cart
               </button>
             </div>

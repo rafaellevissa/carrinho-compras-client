@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { Icon } from "@iconify/react";
-import useShoppingCartContext from "@/hooks/use-shopping-cart";
+import { toggleShoppingCart } from "@/store/shoppingCartSlice";
+import { useAppDispatch } from "@/store/store";
 
 const Header = () => {
-  const { toggleShoppingCart } = useShoppingCartContext();
+  const dispatch = useAppDispatch();
 
   return (
     <>
@@ -23,7 +24,7 @@ const Header = () => {
             <button>
               <Icon fontSize={25} icon="carbon:search" />
             </button>
-            <button onClick={toggleShoppingCart}>
+            <button onClick={() => dispatch(toggleShoppingCart())}>
               <Icon fontSize={25} icon="carbon:shopping-cart" />
             </button>
           </div>

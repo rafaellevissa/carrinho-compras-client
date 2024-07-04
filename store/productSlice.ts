@@ -1,7 +1,7 @@
 import axios from "axios";
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
-type Product = {
+export type Product = {
   id: number;
   name: string;
   description: string;
