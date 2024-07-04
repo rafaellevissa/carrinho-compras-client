@@ -7,6 +7,7 @@ type Product = {
   description: string;
   price: number;
   thumbnail: string;
+  images: string[];
 };
 
 type ProductResponse = {
@@ -17,6 +18,7 @@ type ProductResponse = {
 
 type ProductState = {
   products: Product[];
+  product: Product | null;
   loading: boolean;
   error: string | null;
   isEmpty: boolean;
@@ -30,6 +32,7 @@ type FetchProductStateParams = {
 
 const initialState: ProductState = {
   products: [],
+  product: null,
   isShoppingCartOpen: false,
   isEmpty: true,
   loading: false,
@@ -48,6 +51,21 @@ export const fetchProductState = createAsyncThunk<
       );
 
       return response.data?.data || [];
+    } catch (error) {
+      return rejectWithValue((error as Error).message);
+    }
+  }
+);
+
+export const fetchProductById = createAsyncThunk<Product, number>(
+  "product/fetchProductById",
+  async (productId, { rejectWithValue }) => {
+    try {
+      const response = await axios.get<Product>(
+        `http://localhost:8001/${productId}`
+      );
+
+      return response.data;
     } catch (error) {
       return rejectWithValue((error as Error).message);
     }
@@ -78,6 +96,19 @@ export const productSlice = createSlice({
         state.isEmpty = action.payload.length <= 0;
       })
       .addCase(fetchProductState.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(fetchProductById.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchProductById.fulfilled, (state, action) => {
+        state.loading = false;
+        state.product = action.payload;
+        state.isEmpty = false;
+      })
+      .addCase(fetchProductById.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       });

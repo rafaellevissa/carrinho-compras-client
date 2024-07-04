@@ -5,6 +5,7 @@ import InfiniteList from "../components/InfiniteList";
 import { RootState, useAppDispatch, useAppSelector } from "@/store/store";
 import { useEffect, useState } from "react";
 import { fetchProductState } from "@/store/productSlice";
+import Link from "next/link";
 
 type Pagination = {
   page: number;
@@ -42,12 +43,14 @@ export default function HomePage() {
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
       <InfiniteList itemGenerator={productGenerator}>
         {(product, index) => (
-          <Card
-            key={index}
-            title={product.name}
-            subtitle={product.price}
-            hero={product.thumbnail}
-          />
+          <Link href={`/product/${product.id}`}>
+            <Card
+              key={index}
+              title={product.name}
+              subtitle={product.price}
+              hero={product.thumbnail}
+            />
+          </Link>
         )}
       </InfiniteList>
     </div>
