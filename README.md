@@ -21,7 +21,7 @@ npm install
 After everything is installed, change the credencials at `.env` and run it with the folowing command:
 
 ```
-npm dev
+npm run dev
 ```
 
 ### Install with Docker Compose
