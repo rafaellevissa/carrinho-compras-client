@@ -2,18 +2,40 @@
 
 import Card from "@/components/Card";
 import InfiniteList from "../components/InfiniteList";
-import { RootState, useAppSelector } from "@/store/store";
+import { RootState, useAppDispatch, useAppSelector } from "@/store/store";
+import { useEffect, useState } from "react";
+import { fetchProductState } from "@/store/productSlice";
+
+type Pagination = {
+  page: number;
+  take: number;
+};
 
 export default function HomePage() {
+  const dispatch = useAppDispatch();
+  const [pagination, setPagination] = useState<Pagination>({
+    page: 1,
+    take: 10,
+  });
   const { isShoppingCartOpen, products, isEmpty } = useAppSelector(
     (state: RootState) => state.product
   );
 
-  function* productGenerator(index: number, batchSize: number) {
-    // while (index < products.length) {
-    //   yield products.slice(index, index + batchSize);
-    // }
-    yield products;
+  useEffect(() => {
+    dispatch(
+      fetchProductState({ page: pagination.page, take: pagination.take })
+    );
+  }, [dispatch, pagination]);
+
+  function* productGenerator() {
+    while (!isEmpty) {
+      setPagination({
+        page: pagination.page + 1,
+        take: pagination.take,
+      });
+
+      yield products;
+    }
   }
 
   return (
@@ -24,7 +46,7 @@ export default function HomePage() {
             key={index}
             title={product.name}
             subtitle={product.price}
-            hero={product.image}
+            hero={product.thumbnail}
           />
         )}
       </InfiniteList>
