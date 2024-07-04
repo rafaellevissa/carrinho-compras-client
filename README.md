@@ -1,36 +1,51 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# ALLU CHALLENGE
 
-## Getting Started
+## TECHNOLOGIES
 
-First, run the development server:
+- NextJs
+- TypeScript
+- Tailwind
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## REQUIREMENTS
+
+- NPM
+
+## INSTALL
+
+Once you have the project on your computer, you just need to install the dependencies with npm:
+
+```
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+After everything is installed, change the credencials at `.env` and run it with the folowing command:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```
+npm dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+### Install with Docker Compose
 
-## Learn More
+Alternatively, you can run the project with Docker. Make sure the `.env` file is correctly set up, and then build a Docker image using the following command:
 
-To learn more about Next.js, take a look at the following resources:
+```
+docker compose build
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Once the image is built, start the container:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+```
+docker compose up -d
+```
 
-## Deploy on Vercel
+That's all you need 🎉!
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## RUNNING ON EC2
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+The app is currently running on an EC2 instance that is configured with Docker. The Docker images required for the app are stored in Github Registry.
+
+You can access the running application on the following address:
+
+```
+http://54.160.233.169:3000/
+```
