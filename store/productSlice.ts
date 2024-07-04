@@ -47,7 +47,7 @@ export const fetchProductState = createAsyncThunk<
   async ({ page = 1, take = 10 }, { rejectWithValue }) => {
     try {
       const response = await axios.get<ProductResponse>(
-        `http://localhost:8001?page=${page}&take=${take}`
+        `${process.env.NEXT_PUBLIC_API_URL}/product?page=${page}&take=${take}`
       );
 
       return response.data?.data || [];
@@ -62,7 +62,7 @@ export const fetchProductById = createAsyncThunk<Product, number>(
   async (productId, { rejectWithValue }) => {
     try {
       const response = await axios.get<Product>(
-        `http://localhost:8001/${productId}`
+        `${process.env.NEXT_PUBLIC_API_URL}/product/${productId}`
       );
 
       return response.data;

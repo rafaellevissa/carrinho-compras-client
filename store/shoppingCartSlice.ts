@@ -81,7 +81,7 @@ export const attach = createAsyncThunk<ShoppingCartItem, Product>(
   async (product, { rejectWithValue }) => {
     try {
       const response = await axios.post<ShoppingCartItem>(
-        "http://localhost:8000",
+        `${process.env.NEXT_PUBLIC_API_URL}/shopping-cart`,
         {
           price: product.price,
           productId: product.id,
@@ -101,7 +101,7 @@ export const detach = createAsyncThunk<ShoppingCartItem[], number>(
   async (productId, { rejectWithValue }) => {
     try {
       const response = await axios.delete<ShoppingCartItem[]>(
-        `http://localhost:8000/${productId}`
+        `${process.env.NEXT_PUBLIC_API_URL}/shopping-cart/${productId}`
       );
 
       return response.data;
@@ -116,7 +116,7 @@ export const all = createAsyncThunk<ShoppingCartItem[], void>(
   async (_, { rejectWithValue }) => {
     try {
       const response = await axios.get<ShoppingCartItem[]>(
-        `http://localhost:8000`
+        `${process.env.NEXT_PUBLIC_API_URL}/shopping-cart`
       );
 
       return response.data;
