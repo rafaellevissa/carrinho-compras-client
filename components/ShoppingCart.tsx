@@ -3,6 +3,7 @@ import { Icon } from "@iconify/react";
 import Sidebar from "./Sidebar";
 import { RootState, useAppDispatch, useAppSelector } from "@/store/store";
 import { all, detach, toggleShoppingCart } from "@/store/shoppingCartSlice";
+import { checkout } from "@/store/orderSlice";
 
 type ShoppingCartEmptyProps = {
   text: string;
@@ -102,7 +103,7 @@ export default function ShoppingCart({ emptyText }: Props) {
             </span>
           </div>
           <button
-            onClick={() => {}}
+            onClick={() => dispatch(checkout(items))}
             className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 focus:outline-none"
           >
             Proceed to Checkout

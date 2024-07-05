@@ -2,7 +2,7 @@ import axios from "axios";
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { Product } from "./productSlice";
 
-type ShoppingCartItem = {
+export type ShoppingCartItem = {
   id: number;
   metadata: {
     id: number;
@@ -70,7 +70,6 @@ const aggregateShoppingCartItems = (
     }
   });
 
-  console.log(aggregatedCart);
   const result: ShoppingCartItem[] = Object.values(aggregatedCart);
 
   return result;
