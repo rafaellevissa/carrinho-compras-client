@@ -20,6 +20,7 @@ export type ShoppingCartItem = {
 
 type ShoppingCartState = {
   items: ShoppingCartItem[];
+  itemsCount: number;
   totalPrice: number;
   loading: boolean;
   error: string | null;
@@ -29,6 +30,7 @@ type ShoppingCartState = {
 
 const initialState: ShoppingCartState = {
   items: [],
+  itemsCount: 0,
   totalPrice: 0,
   isShoppingCartOpen: false,
   isEmpty: true,
@@ -36,20 +38,25 @@ const initialState: ShoppingCartState = {
   error: null,
 };
 
-const calcTotalPrice = (items: ShoppingCartItem[]) => {
-  return items.reduce((sum, item) => sum + item.price * item.quantity, 0);
-};
+const calcTotalPrice = (items: ShoppingCartItem[]) =>
+  items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+const calcItemsCount = (items: ShoppingCartItem[]) =>
+  items.reduce((total, item) => total + item.quantity, 0);
 
 const addShoppingCartItem = (
   shoppingCart: ShoppingCartItem[],
   newItem: ShoppingCartItem
 ): ShoppingCartItem[] => {
-  const itemIndex = shoppingCart.findIndex(
+  const existingItemIndex = shoppingCart.findIndex(
     (item) => item.productId === newItem.productId
   );
 
-  if (itemIndex !== -1) {
-    shoppingCart[itemIndex].quantity += 1;
+  if (existingItemIndex !== -1) {
+    shoppingCart[existingItemIndex] = {
+      ...shoppingCart[existingItemIndex],
+      quantity: shoppingCart[existingItemIndex].quantity + 1,
+    };
   } else {
     shoppingCart.push({ ...newItem, quantity: 1 });
   }
@@ -70,9 +77,7 @@ const aggregateShoppingCartItems = (
     }
   });
 
-  const result: ShoppingCartItem[] = Object.values(aggregatedCart);
-
-  return result;
+  return Object.values(aggregatedCart);
 };
 
 export const attach = createAsyncThunk<ShoppingCartItem, Product>(
@@ -87,7 +92,6 @@ export const attach = createAsyncThunk<ShoppingCartItem, Product>(
           metadata: product,
         }
       );
-
       return response.data;
     } catch (error) {
       return rejectWithValue((error as Error).message);
@@ -102,7 +106,6 @@ export const detach = createAsyncThunk<ShoppingCartItem[], number>(
       const response = await axios.delete<ShoppingCartItem[]>(
         `${process.env.NEXT_PUBLIC_API_URL}/shopping-cart/${productId}`
       );
-
       return response.data;
     } catch (error) {
       return rejectWithValue((error as Error).message);
@@ -117,7 +120,6 @@ export const all = createAsyncThunk<ShoppingCartItem[], void>(
       const response = await axios.get<ShoppingCartItem[]>(
         `${process.env.NEXT_PUBLIC_API_URL}/shopping-cart`
       );
-
       return response.data;
     } catch (error) {
       return rejectWithValue((error as Error).message);
@@ -134,54 +136,52 @@ export const shoppingCartSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
+    const handlePending = (state: ShoppingCartState) => {
+      state.loading = true;
+      state.error = null;
+    };
+
+    const handleRejected = (state: ShoppingCartState, action: any) => {
+      state.loading = false;
+      state.error = action.payload as string;
+    };
+
+    const handleFulfilledAll = (state: ShoppingCartState, action: any) => {
+      state.loading = false;
+      state.items = aggregateShoppingCartItems(action.payload);
+      state.itemsCount = calcItemsCount(state.items);
+      state.isEmpty = state.items.length === 0;
+      state.totalPrice = calcTotalPrice(state.items);
+    };
+
+    const handleFulfilledDetach = (state: ShoppingCartState, action: any) => {
+      state.loading = false;
+      state.items = state.items.filter(
+        (item) => item.productId !== action.meta.arg
+      );
+      state.itemsCount = calcItemsCount(state.items);
+      state.isEmpty = state.items.length === 0;
+      state.totalPrice = calcTotalPrice(state.items);
+    };
+
+    const handleFulfilledAttach = (state: ShoppingCartState, action: any) => {
+      state.loading = false;
+      state.items = addShoppingCartItem(state.items, action.payload);
+      state.itemsCount = calcItemsCount(state.items);
+      state.isEmpty = state.items.length === 0;
+      state.totalPrice = calcTotalPrice(state.items);
+    };
+
     builder
-      .addCase(all.pending, (state) => {
-        state.loading = true;
-        state.isEmpty = true;
-        state.items = [];
-        state.error = null;
-        state.totalPrice = 0;
-      })
-      .addCase(all.fulfilled, (state, action) => {
-        state.loading = false;
-        state.items = aggregateShoppingCartItems(action.payload);
-        state.isEmpty = action.payload.length <= 0;
-        state.totalPrice = calcTotalPrice(state.items);
-      })
-      .addCase(all.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload as string;
-      })
-      .addCase(detach.pending, (state) => {
-        state.loading = true;
-      })
-      .addCase(detach.fulfilled, (state, action) => {
-        state.loading = false;
-        state.items = state.items.filter(
-          (item) => item.productId != action.meta.arg
-        );
-        state.isEmpty = state.items.length <= 0;
-        state.error = null;
-        state.totalPrice = calcTotalPrice(state.items);
-      })
-      .addCase(detach.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload as string;
-      })
-      .addCase(attach.pending, (state) => {
-        state.loading = true;
-      })
-      .addCase(attach.fulfilled, (state, action) => {
-        state.loading = false;
-        state.items = addShoppingCartItem(state.items, action.payload);
-        state.isEmpty = state.items.length <= 0;
-        state.error = null;
-        state.totalPrice = calcTotalPrice(state.items);
-      })
-      .addCase(attach.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload as string;
-      });
+      .addCase(all.pending, handlePending)
+      .addCase(all.fulfilled, handleFulfilledAll)
+      .addCase(all.rejected, handleRejected)
+      .addCase(detach.pending, handlePending)
+      .addCase(detach.fulfilled, handleFulfilledDetach)
+      .addCase(detach.rejected, handleRejected)
+      .addCase(attach.pending, handlePending)
+      .addCase(attach.fulfilled, handleFulfilledAttach)
+      .addCase(attach.rejected, handleRejected);
   },
 });
 
