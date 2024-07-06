@@ -2,8 +2,14 @@ import { useEffect } from "react";
 import { Icon } from "@iconify/react";
 import Sidebar from "./Sidebar";
 import { RootState, useAppDispatch, useAppSelector } from "@/store/store";
-import { all, detach, toggleShoppingCart } from "@/store/shoppingCartSlice";
+import {
+  all,
+  detach,
+  emptyCart,
+  toggleShoppingCart,
+} from "@/store/shoppingCartSlice";
 import { checkout } from "@/store/orderSlice";
+import LoadingButton from "./LoadingButton";
 
 type ShoppingCartEmptyProps = {
   text: string;
@@ -67,6 +73,11 @@ export default function ShoppingCart({ emptyText }: Props) {
     (state: RootState) => state.shoppingCart
   );
 
+  const handleCheckout = async () => {
+    await dispatch(checkout(items)).unwrap();
+    dispatch(emptyCart());
+  };
+
   useEffect(() => {
     dispatch(all());
   }, [dispatch]);
@@ -102,12 +113,9 @@ export default function ShoppingCart({ emptyText }: Props) {
               ${totalPrice.toFixed(2)}
             </span>
           </div>
-          <button
-            onClick={() => dispatch(checkout(items))}
-            className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 focus:outline-none"
-          >
+          <LoadingButton onClick={handleCheckout} disabled={isEmpty}>
             Proceed to Checkout
-          </button>
+          </LoadingButton>
         </div>
       </div>
     </Sidebar>
