@@ -41,7 +41,8 @@ const initialState: ProductState = {
 
 export const fetchProductState = createAsyncThunk<
   Product[],
-  FetchProductStateParams
+  FetchProductStateParams,
+  { rejectValue: string }
 >(
   "product/fetchProductState",
   async ({ page = 1, take = 10 }, { rejectWithValue }) => {
@@ -49,28 +50,27 @@ export const fetchProductState = createAsyncThunk<
       const response = await axios.get<ProductResponse>(
         `${process.env.NEXT_PUBLIC_API_URL}/product?page=${page}&take=${take}`
       );
-
-      return response.data?.data || [];
+      return response.data.data;
     } catch (error) {
       return rejectWithValue((error as Error).message);
     }
   }
 );
 
-export const fetchProductById = createAsyncThunk<Product, number>(
-  "product/fetchProductById",
-  async (productId, { rejectWithValue }) => {
-    try {
-      const response = await axios.get<Product>(
-        `${process.env.NEXT_PUBLIC_API_URL}/product/${productId}`
-      );
-
-      return response.data;
-    } catch (error) {
-      return rejectWithValue((error as Error).message);
-    }
+export const fetchProductById = createAsyncThunk<
+  Product,
+  number,
+  { rejectValue: string }
+>("product/fetchProductById", async (productId, { rejectWithValue }) => {
+  try {
+    const response = await axios.get<Product>(
+      `${process.env.NEXT_PUBLIC_API_URL}/product/${productId}`
+    );
+    return response.data;
+  } catch (error) {
+    return rejectWithValue((error as Error).message);
   }
-);
+});
 
 export const productSlice = createSlice({
   name: "product",
@@ -85,33 +85,31 @@ export const productSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
+    const handlePending = (state: ProductState) => {
+      state.loading = true;
+      state.error = null;
+    };
+
+    const handleRejected = (state: ProductState, action: any) => {
+      state.loading = false;
+      state.error = action.payload as string;
+    };
+
     builder
-      .addCase(fetchProductState.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
+      .addCase(fetchProductState.pending, handlePending)
       .addCase(fetchProductState.fulfilled, (state, action) => {
         state.loading = false;
         state.products = action.payload;
-        state.isEmpty = action.payload.length <= 0;
+        state.isEmpty = action.payload.length === 0;
       })
-      .addCase(fetchProductState.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload as string;
-      })
-      .addCase(fetchProductById.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
+      .addCase(fetchProductState.rejected, handleRejected)
+      .addCase(fetchProductById.pending, handlePending)
       .addCase(fetchProductById.fulfilled, (state, action) => {
         state.loading = false;
         state.product = action.payload;
         state.isEmpty = false;
       })
-      .addCase(fetchProductById.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload as string;
-      });
+      .addCase(fetchProductById.rejected, handleRejected);
   },
 });
 

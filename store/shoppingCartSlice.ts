@@ -127,6 +127,20 @@ export const all = createAsyncThunk<ShoppingCartItem[], void>(
   }
 );
 
+export const emptyCart = createAsyncThunk<ShoppingCartItem[], void>(
+  "shoppingCart/empty",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await axios.delete<ShoppingCartItem[]>(
+        `${process.env.NEXT_PUBLIC_API_URL}/shopping-cart`
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue((error as Error).message);
+    }
+  }
+);
+
 export const shoppingCartSlice = createSlice({
   name: "shoppingCart",
   initialState,
@@ -172,6 +186,17 @@ export const shoppingCartSlice = createSlice({
       state.totalPrice = calcTotalPrice(state.items);
     };
 
+    const handleFulfilledEmptyCart = (
+      state: ShoppingCartState,
+      action: any
+    ) => {
+      state.loading = false;
+      state.items = [];
+      state.itemsCount = 0;
+      state.isEmpty = true;
+      state.totalPrice = 0;
+    };
+
     builder
       .addCase(all.pending, handlePending)
       .addCase(all.fulfilled, handleFulfilledAll)
@@ -181,7 +206,10 @@ export const shoppingCartSlice = createSlice({
       .addCase(detach.rejected, handleRejected)
       .addCase(attach.pending, handlePending)
       .addCase(attach.fulfilled, handleFulfilledAttach)
-      .addCase(attach.rejected, handleRejected);
+      .addCase(attach.rejected, handleRejected)
+      .addCase(emptyCart.pending, handlePending)
+      .addCase(emptyCart.fulfilled, handleFulfilledEmptyCart)
+      .addCase(emptyCart.rejected, handleRejected);
   },
 });
 
