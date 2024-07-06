@@ -2,6 +2,7 @@
 
 import Carousel from "@/components/Carrousel";
 import Loading from "@/components/Loading";
+import LoadingButton from "@/components/LoadingButton";
 import { fetchProductById } from "@/store/productSlice";
 import { attach } from "@/store/shoppingCartSlice";
 import { RootState, useAppDispatch, useAppSelector } from "@/store/store";
@@ -15,9 +16,6 @@ type Props = {
 export default function ProductPage({ params: { id } }: Props) {
   const dispatch = useAppDispatch();
   const { product } = useAppSelector((state: RootState) => state.product);
-  const [buttonState, setButtonState] = useState<
-    "idle" | "loading" | "success"
-  >("idle");
 
   useEffect(() => {
     dispatch(fetchProductById(id));
@@ -28,30 +26,7 @@ export default function ProductPage({ params: { id } }: Props) {
 
   const handleAddToCart = async () => {
     if (product) {
-      setButtonState("loading");
-      try {
-        await dispatch(attach(product)).unwrap();
-        setButtonState("success");
-        setTimeout(() => setButtonState("idle"), 2000);
-      } catch (error) {
-        setButtonState("idle");
-      }
-    }
-  };
-
-  const renderButtonContent = () => {
-    switch (buttonState) {
-      case "loading":
-        return <Loading />;
-      case "success":
-        return <Icon fontSize={30} icon="mdi:success" />;
-      case "idle":
-      default:
-        return (
-          <>
-            <Icon icon="iconoir:plus" fontSize={20} /> Add to Cart
-          </>
-        );
+      await dispatch(attach(product)).unwrap();
     }
   };
 
@@ -79,25 +54,9 @@ export default function ProductPage({ params: { id } }: Props) {
                 {product?.description}
               </p>
             </div>
-            <div className="mt-auto">
-              <div className="flex justify-center p-5 border-t border-neutral-600">
-                <button
-                  onClick={handleAddToCart}
-                  className={`${
-                    buttonState === "idle"
-                      ? "bg-blue-500 text-white py-2 px-4 rounded-full flex items-center justify-center hover:bg-blue-700 w-full"
-                      : ""
-                  } ${
-                    buttonState === "loading" || buttonState === "success"
-                      ? "bg-blue-500 text-white h-12 w-12 rounded-full flex items-center justify-center"
-                      : ""
-                  }`}
-                  disabled={buttonState !== "idle"}
-                >
-                  {renderButtonContent()}
-                </button>
-              </div>
-            </div>
+            <LoadingButton onClick={handleAddToCart}>
+              <Icon icon="iconoir:plus" fontSize={20} /> Add to Cart
+            </LoadingButton>
           </div>
         </div>
       </div>
