@@ -1,5 +1,7 @@
 # carrinho-compras-client CHALLENGE
 
+back-end: https://github.com/rafaellevissa/carrinho-compras-client-services-api
+
 ## TECHNOLOGIES
 
 - NextJs
