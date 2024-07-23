@@ -1,4 +1,4 @@
-# ALLU CHALLENGE
+# carrinho-compras-client CHALLENGE
 
 ## TECHNOLOGIES
 
